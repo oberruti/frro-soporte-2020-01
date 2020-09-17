@@ -133,14 +133,13 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
         width: '350px',
         marginTop: '50px',
         marginBottom: '50px',
-
     }
     const title: Style = {
         marginTop: '5%',
         textAlign: 'center',
         color: 'white',
         fontSize: '20px',
-        fontFamily: 'Arial'
+        fontFamily: 'Arial',
     }
 
     const [isOptionSelected, setIsOptionSelected] = useState(false)
@@ -230,7 +229,7 @@ const TestList = (props: {
             borderTop: '50px solid white',
             width: '350px',
             borderRadius: '25px',
-            marginBottom: '25px'
+            marginBottom: '25px',
         },
         subtitle: {
             color: '#fff',
@@ -406,6 +405,14 @@ const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
             textAlign: 'center',
             width: '100%',
         },
+        title: {
+            marginTop: '3%',
+            marginBottom: '3%',
+            textAlign: 'center',
+            color: 'white',
+            fontSize: '20px',
+            fontFamily: 'Arial',
+        },
     }
 
     return (
@@ -437,7 +444,7 @@ const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
                     setScore(event.target.value)
                 }}
             />
-            {errorMessage}
+            <label style={styles.title}>{errorMessage}</label>
             <HorizontalStack>
                 <div style={styles.confirm} onClick={onConfirm}>
                     Confirmar

@@ -430,6 +430,14 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
             textAlign: 'center',
             width: '100%',
         },
+        title: {
+            marginTop: '3%',
+            marginBottom: '3%',
+            textAlign: 'center',
+            color: 'white',
+            fontSize: '20px',
+            fontFamily: 'Arial',
+        },
     }
 
     return (
@@ -472,7 +480,7 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
                     setScore(event.target.value)
                 }}
             />
-            {errorMessage}
+            <label style={styles.title}>{errorMessage}</label>
             <HorizontalStack>
                 <div style={styles.confirm} onClick={onConfirm}>
                     Confirmar
