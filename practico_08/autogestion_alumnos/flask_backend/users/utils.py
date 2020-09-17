@@ -1,4 +1,4 @@
-from datetime import date as datetime
+import datetime
 
 from flask_backend.models import User, Subject, Task, Exam
 from flask_backend import db, bcrypt
@@ -64,7 +64,7 @@ def register_task(description, date, score, is_done, subject_id):
                 registered_task = Task(description=description, score=score, is_done=str(is_done),
                                        subject_id=subject_id)
             else:
-                date_formatted = datetime.strptime(date, '%d/%m/%y')
+                date_formatted = datetime.datetime.strptime(date, '%d/%m/%y')
                 registered_task = Task(description=description, date=date_formatted, score=score, is_done=str(is_done), subject_id=subject_id)
             db.session.add(registered_task)
             db.session.commit()
@@ -94,7 +94,7 @@ def modify_task(task_id, description, date, score, is_done):
             task.is_done = str(is_done)
         else:
             if task.date != date:
-                date_formatted = datetime.datetime.strftime(date, '%d/%m/%y')
+                date_formatted = datetime.datetime.strptime(date, '%d/%m/%y')
                 task.description = description
                 task.date = date_formatted
                 task.score = score
@@ -157,7 +157,7 @@ def modify_exam(exam_id, description, date, score):
             exam.score = score
         else:
             if exam.date != date:
-                date_formatted = datetime.datetime.strftime(date, '%d/%m/%y')
+                date_formatted = datetime.datetime.strptime(date, '%d/%m/%y')
                 exam.description = description
                 exam.date = date_formatted
                 exam.score = score
