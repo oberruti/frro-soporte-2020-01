@@ -72,7 +72,7 @@ class Subject(db.Model):
 class Exam(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True, unique=True, nullable=False)
     description = db.Column(db.String(250), nullable=False)
-    date = db.Column(db.DateTime, nullable=True)
+    date = db.Column(db.String(50), nullable=True)
     score = db.Column(db.String(2), nullable=True)
 
     # parent
@@ -95,7 +95,7 @@ class Exam(db.Model):
 class Task(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True, unique=True, nullable=False)
     description = db.Column(db.String(250), nullable=False)
-    date = db.Column(db.DateTime, nullable=True)
+    date = db.Column(db.String(50), nullable=True)
     score = db.Column(db.String(2), nullable=True)
     is_done = db.Column(db.String(10), nullable=False, default="false")
 

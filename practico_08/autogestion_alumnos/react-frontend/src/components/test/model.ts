@@ -45,7 +45,7 @@ export class TestModel {
 
     tryToSaveTest = async (
         description: string,
-        date: string,
+        date: Date,
         score: string,
         setErrorMessage: (value: string) => void,
         valueSelected: string
@@ -71,7 +71,7 @@ export class TestModel {
 
     saveTest = async (
         description: string,
-        date: string,
+        date: Date,
         score: string,
         valueSelected: string
     ): Promise<{ msg: any; status: string }> => {
