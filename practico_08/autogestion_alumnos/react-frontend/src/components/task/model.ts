@@ -46,7 +46,7 @@ export class TaskModel {
     tryToSaveTask = async (
         description: string,
         isDone: boolean,
-        date: string,
+        date: Date,
         score: string,
         setErrorMessage: (value: string) => void,
         valueSelected: string
@@ -74,7 +74,7 @@ export class TaskModel {
     saveTask = async (
         description: string,
         isDone: boolean,
-        date: string,
+        date: Date,
         score: string,
         valueSelected: string
     ): Promise<{ msg: any; status: string }> => {

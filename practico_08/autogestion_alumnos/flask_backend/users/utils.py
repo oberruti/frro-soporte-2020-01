@@ -60,12 +60,7 @@ def delete_subject(subject):
 def register_task(description, date, score, is_done, subject_id):
     if is_subject_id_valid(subject_id):
         try:
-            if date == '':
-                registered_task = Task(description=description, score=score, is_done=str(is_done),
-                                       subject_id=subject_id)
-            else:
-                date_formatted = datetime.datetime.strptime(date, '%d/%m/%y')
-                registered_task = Task(description=description, date=date_formatted, score=score, is_done=str(is_done), subject_id=subject_id)
+            registered_task = Task(description=description, date=date, score=score, is_done=str(is_done), subject_id=subject_id)
             db.session.add(registered_task)
             db.session.commit()
             return dict(status="ok", data=dict(registered_task.serialize()))
@@ -87,23 +82,10 @@ def is_task_id_valid(task_id):
 def modify_task(task_id, description, date, score, is_done):
     task = Task.query.filter_by(id=task_id).first()
     try:
-        if date == '':
-            task.description = description
-            task.date = None
-            task.score = score
-            task.is_done = str(is_done)
-        else:
-            if task.date != date:
-                date_formatted = datetime.datetime.strptime(date, '%d/%m/%y')
-                task.description = description
-                task.date = date_formatted
-                task.score = score
-                task.is_done = str(is_done)
-            else:
-                task.description = description
-                task.date = date
-                task.score = score
-                task.is_done = str(is_done)
+        task.description = description
+        task.date = date
+        task.score = score
+        task.is_done = str(is_done)
         db.session.commit()
         return True
     except:
@@ -125,11 +107,7 @@ def delete_task(task):
 def register_exam(description, date, score, subject_id):
     if is_subject_id_valid(subject_id):
         try:
-            if date == '':
-                registered_exam = Exam(description=description, score=score, subject_id=subject_id)
-            else:
-                date_formatted = datetime.datetime.strptime(date, '%d/%m/%y')
-                registered_exam = Exam(description=description, date=date_formatted, score=score, subject_id=subject_id)
+            registered_exam = Exam(description=description, date=date, score=score, subject_id=subject_id)
             db.session.add(registered_exam)
             db.session.commit()
             return dict(status="ok", data=dict(registered_exam.serialize()))
@@ -151,20 +129,9 @@ def is_exam_id_valid(exam_id):
 def modify_exam(exam_id, description, date, score):
     exam = Exam.query.filter_by(id=exam_id).first()
     try:
-        if date == '':
-            exam.description = description
-            exam.date = None
-            exam.score = score
-        else:
-            if exam.date != date:
-                date_formatted = datetime.datetime.strptime(date, '%d/%m/%y')
-                exam.description = description
-                exam.date = date_formatted
-                exam.score = score
-            else:
-                exam.description = description
-                exam.date = date
-                exam.score = score
+        exam.description = description
+        exam.date = date
+        exam.score = score
         db.session.commit()
         return True
     except:

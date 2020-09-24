@@ -1,4 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import DatePicker from 'react-date-picker'
 import Select from 'react-select'
 import { Style, StyleMap } from 'utils/tsTypes'
 import { Cookies } from 'react-cookie/lib'
@@ -9,6 +10,8 @@ import { SubjectModel } from '../subject/model'
 import { SubjectsType, SubjectType } from '../subject/common'
 import { HorizontalStack, VerticalStack } from '../../common/components/flex'
 import { getValueOrDefault } from '../../utils/checks'
+import { noop } from '@babel/types'
+import { formatDate } from 'utils/utils'
 
 export const Test = (props: { cookies: Cookies }): JSX.Element => {
     const accessToken = props.cookies.get('access_token')
@@ -29,7 +32,7 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
     const saveTest = useCallback(
         async (
             description: string,
-            date: string,
+            date: Date,
             score: string,
             setErrorMessage: (value: string) => void,
             valueSelected: string,
@@ -53,7 +56,7 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
 
     const tryToSaveTestWithEffect = (
         description: string,
-        date: string,
+        date: Date,
         score: string,
         setErrorMessage: (value: string) => void,
         valueSelected: string,
@@ -185,7 +188,7 @@ const MaybeTestList = (props: {
     valueSelected: string
     tryToSaveTestWithEffect: (
         description: string,
-        date: string,
+        date: Date,
         score: string,
         setErrorMessage: (value: string) => void,
         valueSelected: string,
@@ -213,7 +216,7 @@ const TestList = (props: {
     valueSelected: string
     tryToSaveTestWithEffect: (
         description: string,
-        date: string,
+        date: Date,
         score: string,
         setErrorMessage: (value: string) => void,
         valueSelected: string,
@@ -288,7 +291,7 @@ const TestList = (props: {
                 <span style={styles.testDescription}>
                     {test.description}
                     {'  '}
-                    {test.date}
+                    {formatDate(test.date)}
                     {'   '}
                     {test.score}
                 </span>
@@ -319,7 +322,7 @@ interface MaybeTestFormProps {
     onCancel: () => void
     tryToSaveTestWithEffect: (
         description: string,
-        date: string,
+        date: Date,
         score: string,
         setErrorMessage: (value: string) => void,
         valueSelected: string,
@@ -330,13 +333,13 @@ interface MaybeTestFormProps {
 const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
     const [errorMessage, setErrorMessage] = useState('')
     const [description, setDescription] = useState('')
-    const [date, setDate] = useState('')
+    const [date, setDate] = useState(new Date())
     const [score, setScore] = useState('')
 
     const onCancel = (): void => {
         setErrorMessage('')
         setDescription('')
-        setDate('')
+        setDate(new Date())
         setScore('')
         props.onCancel()
     }
@@ -413,6 +416,10 @@ const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
             fontSize: '20px',
             fontFamily: 'Arial',
         },
+        calendar: {
+            backgroundColor: 'white',
+            width: 'max-content',
+        },
     }
 
     return (
@@ -426,15 +433,19 @@ const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
                     setDescription(event.target.value)
                 }}
             />
-            <input
-                style={styles.input}
-                placeholder="DD/MM/AA"
-                name="date"
-                value={date} // TODO: please parse the data using: https://momentjs.com/docs/#/parsing/ IN EVERY PLACE THAT WE SHOW IT
-                onChange={(event) => {
-                    setDate(event.target.value)
-                }}
-            />
+            <div style={styles.calendar}>
+                <DatePicker
+                    onChange={(date: Date | Date[]) => {
+                        if (Array.isArray(date)) {
+                            noop()
+                        } else {
+                            setDate(date)
+                        }
+                    }}
+                    value={date}
+                    format={'dd/MM/y'}
+                />
+            </div>
             <input
                 style={styles.input}
                 placeholder="Score"
