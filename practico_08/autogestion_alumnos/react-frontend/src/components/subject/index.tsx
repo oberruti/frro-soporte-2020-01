@@ -114,10 +114,12 @@ const SubjectList = (props: {
             position: 'relative',
             background:  '#333',
             borderTop: '50px solid white',
-            width: '60%',
+            width: '70%',
             height: 'auto',
-            paddingBottom: '60px',
+            paddingBottom: '30px',
             borderRadius: '25px',
+            marginTop: '3%',
+            marginBottom: '3%'
         },
         title: {
             color: '#fff',
@@ -189,7 +191,7 @@ const SubjectList = (props: {
         const subjectRow = subjectsSelected.map((subject) => {
             return (
                 <tr>
-                    <th style={styles.cells}>{subject.name}</th><th>{subject.theoryProfessor}</th><th>{subject.practiceProfessor}</th><th>{subject.division}</th><th>{subject.condition}</th><th>{subject.score}</th>
+                    <th style={styles.cells}>{subject.name}</th><th>{subject.theoryDDHHHH}</th><th>{subject.practiceDDHHHH}</th><th>{subject.theoryProfessor}</th><th>{subject.practiceProfessor}</th><th>{subject.division}</th><th>{subject.condition}</th><th>{subject.score}</th>
                 </tr>
             )
         })
@@ -200,7 +202,7 @@ const SubjectList = (props: {
             <table style={styles.table}>
                 <thead style={styles.tableTitle}>
                     <tr>
-                        <th style={styles.cells}>Nombre</th><th>Profesor Teoria</th><th>Profesor Practica</th><th>Division</th><th>Condicion</th><th>Score</th>
+                        <th style={styles.cells}>Nombre</th><th>Hora teoria</th><th>Hora practica</th><th>Profesor Teoria</th><th>Profesor Practica</th><th>Division</th><th>Condicion</th><th>Score</th>
                     </tr>
                 </thead>
                 {subjectRow}
@@ -257,8 +259,8 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
         }
     
         const onConfirm = (): void => {
-            if ((name === '')||(division === '')) {
-                setErrorMessage('Nombre o division vacios')
+            if ((name === '')||(division === '')||(condition === '')) {
+                setErrorMessage('Completar los campos requeridos')
                 return
             }
             props.tryToSaveSubject(
@@ -282,7 +284,7 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
         const styles: StyleMap = {
             input: {
                 height: '25px',
-                width: '80%',
+                width: '70%',
                 borderWidth: 'small',
                 borderColor: '#b3b3b3',
                 boxShadow: '0 1px 1px rgba(0, 0, 0, 0.25)',
@@ -291,6 +293,7 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
                 marginBottom: '4%',
                 borderRadius: '5px',
                 display: 'flex',
+                alignSelf:'center'
             },
             confirm: {
                 height: '30px',
@@ -335,7 +338,6 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
                         setName(event.target.value)
                     }}
                 />
-                <HorizontalStack style={{ color: 'white', alignSelf: 'start' }}>
                     <input
                         style={styles.input}
                         placeholder="Division*"
@@ -345,7 +347,6 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
                             setDivision(event.target.value)
                         }}
                     />
-                </HorizontalStack>
                     <input
                         style={styles.input}
                         placeholder="Hora de practica"
@@ -384,7 +385,7 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
                     />
                     <input
                         style={styles.input}
-                        placeholder="Condicion"
+                        placeholder="Condicion*"
                         name="condition"
                         value={condition}
                         onChange={(event) => {
