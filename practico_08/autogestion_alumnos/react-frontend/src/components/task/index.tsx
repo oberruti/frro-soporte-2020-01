@@ -236,14 +236,16 @@ const TaskList = (props: {
             position: 'relative',
             background: '#333',
             borderTop: '50px solid white',
-            width: '350px',
+            width: '70%',
+            height: 'auto',
             borderRadius: '25px',
+            marginBottom: '25px',
         },
         subtitle: {
             color: '#fff',
             fontSize: '30px',
             padding: '1px 0',
-            marginLeft: '20px',
+            marginLeft: '5px',
             borderBottom: '4px solid #fff',
             textAlign: 'center',
             marginTop: '0px',
@@ -268,13 +270,25 @@ const TaskList = (props: {
             fontSize: '17px',
             fontFamily: 'Arial',
             margin: '40px 0',
-            display: 'block',
+            display: 'flex',
             cursor: 'pointer',
         },
-        taskDescription: {
-            position: 'relative',
-            left: '20px',
-            transition: '0.6s',
+        cells: {
+            padding: '15px',
+            borderBottom: '1px solid #333',
+        },
+        table: {
+            color: 'black',
+            fontSize: '19px',
+            textAlign: 'left',
+            width: '100%',
+            backgroundColor: 'white',
+            borderCollapse: 'collapse',
+        },
+        tableTitle: {
+            color: 'white',
+            backgroundColor: '#666',
+            borderBottom: '5px solid #222',
         },
     }
     const [isAddTaskClicked, setIsAddTaskClicked] = useState(false)
@@ -293,39 +307,47 @@ const TaskList = (props: {
     const tasksRow = tasksSelected.map((task) => {
         let isChecked = task.isDone
         return (
-            <label key={task.id} style={styles.taskLine}>
-                <input
-                    type="checkbox"
-                    name=""
-                    checked={isChecked}
-                    onChange={async (event) => {
-                        const newTask = {
-                            ...task,
-                            isDone: event.target.checked,
-                        }
-                        const result = await onCheck(newTask)
-                        if (!result) {
-                            return
-                        } else {
-                            isChecked = !isChecked
-                        }
-                    }}
-                />
-                <span style={styles.taskDescription}>
-                    {task.description}
-                    {'  '}
-                    {formatDate(task.date)}
-                    {'   '}
-                    {task.score}
-                </span>
-            </label>
+            <tr key={task.id}>
+                <th style={styles.cells}>
+                    <input
+                        type="checkbox"
+                        name=""
+                        checked={isChecked}
+                        onChange={async (event) => {
+                            const newTask = {
+                                ...task,
+                                isDone: event.target.checked,
+                            }
+                            const result = await onCheck(newTask)
+                            if (!result) {
+                                return
+                            } else {
+                                isChecked = !isChecked
+                            }
+                        }}
+                    />
+                </th>
+                <th style={styles.cells}>{task.description}</th>
+                <th style={styles.cells}>{formatDate(task.date)}</th>
+                <th style={styles.cells}>{task.score}</th>
+            </tr>
         )
     })
 
     return (
         <div style={styles.box}>
             <h2 style={styles.subtitle}>Tareas</h2>
-            {tasksRow}
+            <table style={styles.table}>
+                <thead style={styles.tableTitle}>
+                    <tr>
+                        <th style={styles.cells}>Hecha</th>
+                        <th>Descripcion</th>
+                        <th>Fecha</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>{tasksRow}</tbody>
+            </table>
             <button onClick={onClick} style={styles.addButton}>
                 Agregar Tarea
             </button>

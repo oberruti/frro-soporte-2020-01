@@ -230,7 +230,8 @@ const TestList = (props: {
             position: 'relative',
             background: '#333',
             borderTop: '50px solid white',
-            width: '350px',
+            width: '70%',
+            height: 'auto',
             borderRadius: '25px',
             marginBottom: '25px',
         },
@@ -238,7 +239,7 @@ const TestList = (props: {
             color: '#fff',
             fontSize: '30px',
             padding: '1px 0',
-            marginLeft: '20px',
+            marginLeft: '5px',
             borderBottom: '4px solid #fff',
             textAlign: 'center',
             marginTop: '0px',
@@ -263,13 +264,25 @@ const TestList = (props: {
             fontSize: '17px',
             fontFamily: 'Arial',
             margin: '40px 0',
-            display: 'block',
+            display: 'flex',
             cursor: 'pointer',
         },
-        testDescription: {
-            position: 'relative',
-            left: '20px',
-            transition: '0.6s',
+        cells: {
+            padding: '15px',
+            borderBottom: '1px solid #333',
+        },
+        table: {
+            color: 'black',
+            fontSize: '19px',
+            textAlign: 'left',
+            width: '100%',
+            backgroundColor: 'white',
+            borderCollapse: 'collapse',
+        },
+        tableTitle: {
+            color: 'white',
+            backgroundColor: '#666',
+            borderBottom: '5px solid #222',
         },
     }
     const [isAddTestClicked, setIsAddTestClicked] = useState(false)
@@ -287,22 +300,27 @@ const TestList = (props: {
 
     const testsRow = testsSelected.map((test) => {
         return (
-            <label key={test.id} style={styles.testLine}>
-                <span style={styles.testDescription}>
-                    {test.description}
-                    {'  '}
-                    {formatDate(test.date)}
-                    {'   '}
-                    {test.score}
-                </span>
-            </label>
+            <tr key={test.id}>
+                <th style={styles.cells}>{test.description}</th>
+                <th style={styles.cells}>{formatDate(test.date)}</th>
+                <th style={styles.cells}>{test.score}</th>
+            </tr>
         )
     })
 
     return (
         <div style={styles.box}>
             <h2 style={styles.subtitle}>Examenes</h2>
-            {testsRow}
+            <table style={styles.table}>
+                <thead style={styles.tableTitle}>
+                    <tr>
+                        <th style={styles.cells}>Descripcion</th>
+                        <th>Fecha</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>{testsRow}</tbody>
+            </table>
             <button onClick={onClick} style={styles.addButton}>
                 Agregar Examen
             </button>
