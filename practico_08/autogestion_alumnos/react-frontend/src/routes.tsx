@@ -8,6 +8,7 @@ import { Dashboard } from './components/dashboard'
 import { Task } from 'components/task'
 import { Test } from 'components/test'
 import { Subject } from 'components/subject'
+import { CalendarPage } from 'components/calendar/index'
 
 interface RoutesAppProps {
     cookies: Cookies
@@ -51,7 +52,7 @@ const App = (props: { cookies: Cookies }): JSX.Element => {
                 />
                 <Route
                     path={'/app/calendar'}
-                    render={() => <Dashboard cookies={props.cookies} />}
+                    render={() => <CalendarPage cookies={props.cookies} />}
                 />
                 <Route
                     path={'/app/subject'}
