@@ -540,19 +540,27 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             value: subject.id,
         }
     })
+    const errorMessage = props.isDisabled ? 'Usted no posee materias, por favor agregue.' : ''
+    const style: Style = {
+        color: 'white',
+        marginTop: '5%',
+        display: 'flex',
+        marginLeft: '10%',
+    }
     return (
         <div style={props.style}>
             <Fragment>
                 <Select
                     className="basic-single"
                     classNamePrefix="select"
-                    isDisabled={false}
+                    isDisabled={props.isDisabled}
                     isClearable={true}
                     isSearchable={true}
                     name="Subjects"
                     options={options}
                     onChange={props.onChange}
                 />
+                <div style={style}> {errorMessage} </div>
             </Fragment>
         </div>
     )
