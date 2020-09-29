@@ -4,7 +4,7 @@ export interface TaskType {
     id: string
     description: string
     isDone: boolean
-    date?: string
+    date?: string | null
     score?: string
     subjectId: string
 }

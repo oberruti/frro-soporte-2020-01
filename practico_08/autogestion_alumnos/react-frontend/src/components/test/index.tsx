@@ -9,7 +9,7 @@ import { TestsType, TestType } from './common'
 import { SubjectModel } from '../subject/model'
 import { SubjectsType, SubjectType } from '../subject/common'
 import { HorizontalStack, VerticalStack } from '../../common/components/flex'
-import { getValueOrDefault } from '../../utils/checks'
+import { getValueOrDefault, isNil } from '../../utils/checks'
 import { noop } from '@babel/types'
 import { formatDate } from 'utils/utils'
 import edit from 'common/img/edit-logo.png'
@@ -260,6 +260,7 @@ const TestList = (props: {
             height: 'auto',
             borderRadius: '25px',
             marginBottom: '25px',
+            minWidth: '50%',
         },
         subtitle: {
             color: '#fff',
@@ -441,13 +442,17 @@ interface MaybeTestFormProps {
 const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
     const [errorMessage, setErrorMessage] = useState('')
     const [description, setDescription] = useState('')
-    const [date, setDate] = useState(new Date())
+    const [date, setDate] = useState()
     const [score, setScore] = useState('')
 
     useEffect(() => {
         if (props.isEditTestClicked) {
             setDescription(props.currentTest.description)
-            setDate(new Date(props.currentTest.date))
+            setDate(
+                isNil(props.currentTest.date)
+                    ? null
+                    : new Date(props.currentTest.date)
+            )
             setScore(props.currentTest.score)
         }
     }, [
@@ -461,7 +466,7 @@ const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
     const onCancel = (): void => {
         setErrorMessage('')
         setDescription('')
-        setDate(new Date())
+        setDate(null)
         setScore('')
         props.onCancel()
     }
@@ -492,7 +497,7 @@ const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
                 id: props.currentTest.id,
                 description: description,
                 score: score,
-                date: date.toString(),
+                date: isNil(date) ? null : date.toDateString(),
                 subjectId: props.currentTest.subjectId,
             },
             onCancel
