@@ -302,9 +302,6 @@ def exam():
         return dict(status="error", msg=registered_exam['msg'])
 
     if request.method == "DELETE":
-        print(request.json)
-        print(request.json())
-        print(request.json.get())
         exam_id_delete = request.json.get("id", None)
         exam_to_delete = Exam.query.filter_by(id=exam_id_delete).first()
         if exam_to_delete is not None:

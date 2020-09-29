@@ -4,7 +4,7 @@ export function noop(): void {
     return
 }
 
-export function formatDate(date?: string): string {
+export function formatDate(date?: string | null): string {
     if (isNil(date)) {
         return ''
     }

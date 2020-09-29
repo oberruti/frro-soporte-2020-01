@@ -142,7 +142,7 @@ export const Task = (props: { cookies: Cookies }): JSX.Element => {
         width: '350px',
         marginTop: '50px',
         marginBottom: '0px',
-        fontFamily: 'Arial'
+        fontFamily: 'Arial',
     }
     const title: Style = {
         marginTop: '5%',
@@ -240,10 +240,11 @@ const TaskList = (props: {
             background: '#333',
             borderTop: '50px solid white',
             width: 'auto',
-            maxWidth:'70%',
+            maxWidth: '70%',
             height: 'auto',
             borderRadius: '25px',
             marginBottom: '25px',
+            minWidth: '50%',
         },
         subtitle: {
             color: '#fff',
@@ -280,7 +281,7 @@ const TaskList = (props: {
         cells: {
             padding: '15px',
             borderBottom: '1px solid #333',
-            fontFamily: 'Arial'
+            fontFamily: 'Arial',
         },
         table: {
             color: 'black',
@@ -294,14 +295,14 @@ const TaskList = (props: {
             color: 'white',
             backgroundColor: '#666',
             borderBottom: '5px solid #222',
-            fontFamily: 'Arial'
+            fontFamily: 'Arial',
         },
         logo: {
             maxWidth: '20px',
             maxHeight: '20px',
             cursor: 'pointer',
             float: 'right',
-        }
+        },
     }
     const [isAddTaskClicked, setIsAddTaskClicked] = useState(false)
 
@@ -342,8 +343,12 @@ const TaskList = (props: {
                 <th style={styles.cells}>{task.description}</th>
                 <th style={styles.cells}>{formatDate(task.date)}</th>
                 <th style={styles.cells}>{task.score}</th>
-                <th style={styles.cells}><img src={edit} style={styles.logo} />  </th>
-                <th style={styles.cells}><img src={trash} style={styles.logo} />  </th>
+                <th style={styles.cells}>
+                    <img src={edit} style={styles.logo} />{' '}
+                </th>
+                <th style={styles.cells}>
+                    <img src={trash} style={styles.logo} />{' '}
+                </th>
             </tr>
         )
     })
@@ -396,14 +401,14 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
     const [errorMessage, setErrorMessage] = useState('')
     const [description, setDescription] = useState('')
     const [isDone, setIsDone] = useState(false)
-    const [date, setDate] = useState(new Date())
+    const [date, setDate] = useState()
     const [score, setScore] = useState('')
 
     const onCancel = (): void => {
         setErrorMessage('')
         setDescription('')
         setIsDone(false)
-        setDate(new Date())
+        setDate(null)
         setScore('')
         props.onCancel()
     }
@@ -556,7 +561,9 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             value: subject.id,
         }
     })
-    const errorMessage = props.isDisabled ? 'Usted no posee materias, por favor agregue.' : ''
+    const errorMessage = props.isDisabled
+        ? 'Usted no posee materias, por favor agregue.'
+        : ''
     const style: Style = {
         color: 'white',
         marginTop: '5%',
