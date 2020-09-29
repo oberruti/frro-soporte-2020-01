@@ -12,6 +12,8 @@ import { HorizontalStack, VerticalStack } from '../../common/components/flex'
 import { getValueOrDefault } from '../../utils/checks'
 import { noop } from '@babel/types'
 import { formatDate } from 'utils/utils'
+import edit from 'common/img/edit-logo.png'
+import trash from 'common/img/trash-logo.png'
 
 export const Task = (props: { cookies: Cookies }): JSX.Element => {
     const accessToken = props.cookies.get('access_token')
@@ -139,7 +141,8 @@ export const Task = (props: { cookies: Cookies }): JSX.Element => {
     const dropdown: Style = {
         width: '350px',
         marginTop: '50px',
-        marginBottom: '50px',
+        marginBottom: '0px',
+        fontFamily: 'Arial'
     }
     const title: Style = {
         marginTop: '5%',
@@ -236,7 +239,8 @@ const TaskList = (props: {
             position: 'relative',
             background: '#333',
             borderTop: '50px solid white',
-            width: '70%',
+            width: 'auto',
+            maxWidth:'70%',
             height: 'auto',
             borderRadius: '25px',
             marginBottom: '25px',
@@ -276,6 +280,7 @@ const TaskList = (props: {
         cells: {
             padding: '15px',
             borderBottom: '1px solid #333',
+            fontFamily: 'Arial'
         },
         table: {
             color: 'black',
@@ -289,7 +294,14 @@ const TaskList = (props: {
             color: 'white',
             backgroundColor: '#666',
             borderBottom: '5px solid #222',
+            fontFamily: 'Arial'
         },
+        logo: {
+            maxWidth: '20px',
+            maxHeight: '20px',
+            cursor: 'pointer',
+            float: 'right',
+        }
     }
     const [isAddTaskClicked, setIsAddTaskClicked] = useState(false)
 
@@ -330,6 +342,8 @@ const TaskList = (props: {
                 <th style={styles.cells}>{task.description}</th>
                 <th style={styles.cells}>{formatDate(task.date)}</th>
                 <th style={styles.cells}>{task.score}</th>
+                <th style={styles.cells}><img src={edit} style={styles.logo} />  </th>
+                <th style={styles.cells}><img src={trash} style={styles.logo} />  </th>
             </tr>
         )
     })
@@ -344,6 +358,8 @@ const TaskList = (props: {
                         <th>Descripcion</th>
                         <th>Fecha</th>
                         <th>Score</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>{tasksRow}</tbody>

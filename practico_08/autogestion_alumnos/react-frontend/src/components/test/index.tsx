@@ -12,6 +12,8 @@ import { HorizontalStack, VerticalStack } from '../../common/components/flex'
 import { getValueOrDefault } from '../../utils/checks'
 import { noop } from '@babel/types'
 import { formatDate } from 'utils/utils'
+import edit from 'common/img/edit-logo.png'
+import trash from 'common/img/trash-logo.png'
 
 export const Test = (props: { cookies: Cookies }): JSX.Element => {
     const accessToken = props.cookies.get('access_token')
@@ -73,7 +75,7 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
     }
 
     const changeTest = useCallback(
-        async (test: TestType) => {
+        async (test: TestType, cleanScreen: () => void) => {
             const saved = await model.tryToModifyTest(test)
             if (saved) {
                 const newTests = tests.map((testArray) => {
@@ -83,6 +85,8 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
                     return testArray
                 })
                 setTests(newTests)
+                void loadTests()
+                cleanScreen()
                 return true
             }
             return false
@@ -91,9 +95,28 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
     )
 
     const tryToChangeTestWithEffect = async (
-        test: TestType
+        test: TestType,
+        cleanScreen: () => void
     ): Promise<boolean> => {
-        return await changeTest(test)
+        return await changeTest(test, cleanScreen)
+    }
+
+    const deleteTest = useCallback(
+        async (id: string) => {
+            const deleted = await model.tryToDeleteTest(id)
+            if (deleted) {
+                void loadTests()
+                return true
+            }
+            return false
+        },
+        []
+    )
+
+    const tryToDeleteTestWithEffect = async (
+        id: string,
+    ): Promise<boolean> => {
+        return await deleteTest(id)
     }
 
     /*
@@ -135,7 +158,8 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
     const dropdown: Style = {
         width: '350px',
         marginTop: '50px',
-        marginBottom: '50px',
+        marginBottom: '0px',
+        fontFamily: 'Arial'
     }
     const title: Style = {
         marginTop: '5%',
@@ -175,6 +199,7 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
                     valueSelected={valueSelected}
                     tryToSaveTestWithEffect={tryToSaveTestWithEffect}
                     tryToChangeTestWithEffect={tryToChangeTestWithEffect}
+                    tryToDeleteTestWithEffect={tryToDeleteTestWithEffect}
                 />
             </VerticalStack>
         </Layout>
@@ -194,7 +219,8 @@ const MaybeTestList = (props: {
         valueSelected: string,
         cleanScreen: () => void
     ) => void
-    tryToChangeTestWithEffect: (test: TestType) => Promise<boolean>
+    tryToChangeTestWithEffect: (test: TestType, cleanScreen: () => void) => Promise<boolean>
+    tryToDeleteTestWithEffect: (id: string) => Promise<boolean>
 }): JSX.Element | null => {
     if (props.isOptionSelected) {
         return (
@@ -204,6 +230,7 @@ const MaybeTestList = (props: {
                 valueSelected={props.valueSelected}
                 tryToSaveTestWithEffect={props.tryToSaveTestWithEffect}
                 tryToChangeTestWithEffect={props.tryToChangeTestWithEffect}
+                tryToDeleteTestWithEffect={props.tryToDeleteTestWithEffect}
             />
         )
     }
@@ -222,7 +249,8 @@ const TestList = (props: {
         valueSelected: string,
         cleanScreen: () => void
     ) => void
-    tryToChangeTestWithEffect: (test: TestType) => Promise<boolean>
+    tryToChangeTestWithEffect: (test: TestType, cleanScreen: () => void) => Promise<boolean>
+    tryToDeleteTestWithEffect: (id: string) => Promise<boolean>
 }): JSX.Element => {
     const styles: StyleMap = {
         box: {
@@ -230,7 +258,7 @@ const TestList = (props: {
             position: 'relative',
             background: '#333',
             borderTop: '50px solid white',
-            width: '70%',
+            width: 'auto',
             height: 'auto',
             borderRadius: '25px',
             marginBottom: '25px',
@@ -270,6 +298,7 @@ const TestList = (props: {
         cells: {
             padding: '15px',
             borderBottom: '1px solid #333',
+            fontFamily: 'Arial'
         },
         table: {
             color: 'black',
@@ -283,16 +312,34 @@ const TestList = (props: {
             color: 'white',
             backgroundColor: '#666',
             borderBottom: '5px solid #222',
+            fontFamily: 'Arial',
         },
+        logo: {
+            maxWidth: '20px',
+            maxHeight: '20px',
+            cursor: 'pointer',
+            float: 'right',
+        }
     }
     const [isAddTestClicked, setIsAddTestClicked] = useState(false)
+    const [isEditTestClicked, setIsEditTestClicked] = useState(false)
+    const [currentTest, setCurrentTest] = useState({
+        id: '', description: '', date:new Date(), score: '', subjectId:'',
+    })
 
     const onClick = useCallback(() => {
         setIsAddTestClicked(true)
     }, [setIsAddTestClicked])
 
-    const onModify = (test: TestType): Promise<boolean> =>
-        props.tryToChangeTestWithEffect(test)
+    const onClickEdit = useCallback((test) => {
+        setIsEditTestClicked(true)
+        setCurrentTest({
+            id:test.id, description: test.description, date:test.date, score:test.score, subjectId: test.subjectId})
+    }, [setIsEditTestClicked],)
+
+    const onClickDelete = useCallback((id) => {
+        props.tryToDeleteTestWithEffect(id)
+    }, [])
 
     const testsSelected = props.tests.filter(
         (test) => test.subjectId === props.valueSelected
@@ -304,6 +351,10 @@ const TestList = (props: {
                 <th style={styles.cells}>{test.description}</th>
                 <th style={styles.cells}>{formatDate(test.date)}</th>
                 <th style={styles.cells}>{test.score}</th>
+                <th style={styles.cells}><img onClick={()=>{
+                    onClickEdit(test)
+                    }} src={edit} style={styles.logo} />  </th>
+                <th style={styles.cells}><img onClick={() => onClickDelete(test.id)} src={trash} style={styles.logo} />  </th>
             </tr>
         )
     })
@@ -317,6 +368,8 @@ const TestList = (props: {
                         <th style={styles.cells}>Descripcion</th>
                         <th>Fecha</th>
                         <th>Score</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>{testsRow}</tbody>
@@ -326,9 +379,13 @@ const TestList = (props: {
             </button>
             <MaybeTestForm
                 isAddTestClicked={isAddTestClicked}
-                onCancel={() => setIsAddTestClicked(false)}
+                isEditTestClicked={isEditTestClicked}
+                currentTest={currentTest}
+                onCancel={() => {setIsAddTestClicked(false)
+                                setIsEditTestClicked(false)}}
                 valueSelected={props.valueSelected}
                 tryToSaveTestWithEffect={props.tryToSaveTestWithEffect}
+                tryToChangeTestWithEffect={props.tryToChangeTestWithEffect}
             />
         </div>
     )
@@ -337,6 +394,14 @@ const TestList = (props: {
 interface MaybeTestFormProps {
     valueSelected: string
     isAddTestClicked: boolean
+    isEditTestClicked: boolean
+    currentTest: {
+        id: string
+        description: string,
+        date: Date,
+        score: string,
+        subjectId: string,
+    }
     onCancel: () => void
     tryToSaveTestWithEffect: (
         description: string,
@@ -346,6 +411,7 @@ interface MaybeTestFormProps {
         valueSelected: string,
         cleanScreen: () => void
     ) => void
+    tryToChangeTestWithEffect: (test: TestType, cleanScreen: () => void) => Promise<boolean>
 }
 
 const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
@@ -354,13 +420,21 @@ const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
     const [date, setDate] = useState(new Date())
     const [score, setScore] = useState('')
 
+    useEffect(() => {
+        if (props.isEditTestClicked) {
+            setDescription(props.currentTest.description)
+            setDate(new Date(props.currentTest.date))
+            setScore(props.currentTest.score)
+        }
+    }, [props.isEditTestClicked, setDescription, setDate, setScore, props.currentTest ])
+
     const onCancel = (): void => {
         setErrorMessage('')
         setDescription('')
         setDate(new Date())
         setScore('')
-        props.onCancel()
-    }
+        props.onCancel() 
+    }   
 
     const onConfirm = (): void => {
         if (description === '') {
@@ -378,9 +452,31 @@ const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
         return
     }
 
-    if (!props.isAddTestClicked) {
+    const onConfirmEdit = (): void => {
+        if (description === '') {
+            setErrorMessage('Titulo de examen vacio')
+            return
+        }
+        props.tryToChangeTestWithEffect(
+            {
+                id: props.currentTest.id,
+                description: description,
+                score: score,
+                date: date.toString(),
+                subjectId: props.currentTest.subjectId,
+            },
+            onCancel,
+        )
+        return
+    }
+
+    if (!props.isAddTestClicked && !props.isEditTestClicked) {
         return null
     }
+
+    const onConfirmSelected = props.isEditTestClicked ? onConfirmEdit : onConfirm
+    const title = props.isEditTestClicked ? 'Editar examen' : 'Agregar examen'
+    
     const styles: StyleMap = {
         input: {
             height: '25px',
@@ -440,48 +536,48 @@ const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
         },
     }
 
-    return (
+    return (        
         <VerticalStack style={{ marginTop: '50px' }}>
-            <input
-                style={styles.input}
-                placeholder="Titulo examen*"
-                name="description"
-                value={description}
-                onChange={(event) => {
-                    setDescription(event.target.value)
-                }}
-            />
-            <div style={styles.calendar}>
-                <DatePicker
-                    onChange={(date: Date | Date[]) => {
-                        if (Array.isArray(date)) {
-                            noop()
-                        } else {
-                            setDate(date)
-                        }
-                    }}
-                    value={date}
-                    format={'dd/MM/y'}
-                />
-            </div>
-            <input
-                style={styles.input}
-                placeholder="Score"
-                name="score"
-                value={score}
-                onChange={(event) => {
-                    setScore(event.target.value)
-                }}
-            />
-            <label style={styles.title}>{errorMessage}</label>
-            <HorizontalStack>
-                <button style={styles.confirm} onClick={onConfirm}>
-                    Confirmar
-                </button>
-                <button style={styles.cancel} onClick={onCancel}>
-                    Cancelar
-                </button>
-            </HorizontalStack>
+            <div>
+    <h1 style={styles.title}>{title}</h1>
+                <input
+                    style={styles.input}
+                    name="description"
+                    placeholder={"Description"}
+                    value={description}
+                    onChange={(event) => {
+                        setDescription(event.target.value)
+                    } } />
+                    <div style={styles.calendar}>
+                            <DatePicker
+                                onChange={(date: Date | Date[]) => {
+                                    if (Array.isArray(date)) {
+                                        noop()
+                                    } else {
+                                        setDate(date)
+                                    }
+                                } }
+                                value={date}
+                                format={'dd/MM/y'} />
+                    </div>
+                    <input
+                        style={styles.input}
+                        placeholder={"score"}
+                        name="Score"    
+                        value={score}
+                        onChange={(event) => {
+                            setScore(event.target.value)
+                        } } />
+                        <label style={styles.title}>{errorMessage}</label>
+                    <HorizontalStack>
+                        <button style={styles.confirm} onClick={onConfirmSelected}>
+                            Confirmar
+                        </button>
+                        <button style={styles.cancel} onClick={onCancel}>
+                            Cancelar
+                        </button>
+                    </HorizontalStack>
+                </div>
         </VerticalStack>
     )
 }

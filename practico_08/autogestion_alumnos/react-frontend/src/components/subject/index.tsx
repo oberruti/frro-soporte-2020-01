@@ -5,6 +5,8 @@ import { Layout } from 'components/app/layout'
 import { SubjectModel } from './model'
 import { SubjectsType } from './common'
 import { HorizontalStack, VerticalStack } from '../../common/components/flex'
+import edit from 'common/img/edit-logo.png'
+import trash from 'common/img/trash-logo.png'
 
 export const Subject = (props: { cookies: Cookies }): JSX.Element => {
     const accessToken = props.cookies.get('access_token')
@@ -110,7 +112,6 @@ const SubjectList = (props: {
             borderTop: '50px solid white',
             width: '70%',
             height: 'auto',
-            //paddingBottom: '30px',
             borderRadius: '25px',
             marginTop: '3%',
             marginBottom: '3%',
@@ -166,6 +167,12 @@ const SubjectList = (props: {
             borderRadius: '5px',
             cursor: 'pointer',
         },
+        logo: {
+            maxWidth: '20px',
+            maxHeight: '20px',
+            cursor: 'pointer',
+            alignSelf: 'center'
+        }
     }
 
     const [styleNewSubject, setStyleNewSubject] = useState(styles.noInput)
@@ -189,6 +196,8 @@ const SubjectList = (props: {
                 <th>{subject.division}</th>
                 <th>{subject.condition}</th>
                 <th>{subject.score}</th>
+                <th><img src={edit} style={styles.logo} />  </th>
+                <th><img src={trash} style={styles.logo} />  </th>
             </tr>
         )
     })
@@ -207,6 +216,8 @@ const SubjectList = (props: {
                         <th>Division</th>
                         <th>Condicion</th>
                         <th>Score</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>{subjectRow}</tbody>
