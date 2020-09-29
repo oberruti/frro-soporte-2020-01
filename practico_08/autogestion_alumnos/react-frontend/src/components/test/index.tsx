@@ -247,11 +247,8 @@ const TestList = (props: {
         valueSelected: string,
         cleanScreen: () => void
     ) => void
-    tryToChangeTestWithEffect: (
-        test: TestType,
-        cleanScreen: () => void
-    ) => Promise<boolean>
-    tryToDeleteTestWithEffect: (id: string) => Promise<boolean>
+    tryToChangeTestWithEffect: (test: TestType, cleanScreen: () => void) => void
+    tryToDeleteTestWithEffect: (id: string) => void
 }): JSX.Element => {
     const styles: StyleMap = {
         box: {
@@ -438,10 +435,7 @@ interface MaybeTestFormProps {
         valueSelected: string,
         cleanScreen: () => void
     ) => void
-    tryToChangeTestWithEffect: (
-        test: TestType,
-        cleanScreen: () => void
-    ) => Promise<boolean>
+    tryToChangeTestWithEffect: (test: TestType, cleanScreen: () => void) => void
 }
 
 const MaybeTestForm = (props: MaybeTestFormProps): JSX.Element | null => {
