@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import requests as requests
 from flask import Blueprint, request, session
 from flask_backend import jwt
 from flask_backend.models import User, Subject, Task, Exam
