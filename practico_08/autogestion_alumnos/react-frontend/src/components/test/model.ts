@@ -146,6 +146,43 @@ export class TestModel {
             })
         return await response
     }
+
+    tryToDeleteTest = async (id: string): Promise<boolean> => {
+        const response = await this.deleteTest(id)
+
+        return response.status === 'ok'
+    }
+
+    deleteTest = async (
+        id: string
+    ): Promise<{ msg: any; status: string }> => {
+        const response = axios
+            .delete(
+                '/exam',
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${this.accessToken}`,
+                    },
+                    data: {
+                        id: id,
+                    },
+                },
+            )
+            .then((response) => {
+                return {
+                    status: response.data.status,
+                    msg: response.data,
+                }
+            })
+            .catch(() => {
+                return {
+                    status: 'error',
+                    msg: '',
+                }
+            })
+        return await response
+    }
 }
 
 export const processTests = (tests: any): TestsType => {
