@@ -153,22 +153,17 @@ export class TestModel {
         return response.status === 'ok'
     }
 
-    deleteTest = async (
-        id: string
-    ): Promise<{ msg: any; status: string }> => {
+    deleteTest = async (id: string): Promise<{ msg: any; status: string }> => {
         const response = axios
-            .delete(
-                '/exam',
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${this.accessToken}`,
-                    },
-                    data: {
-                        id: id,
-                    },
+            .delete('/exam', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${this.accessToken}`,
                 },
-            )
+                data: {
+                    id: id,
+                },
+            })
             .then((response) => {
                 return {
                     status: response.data.status,
