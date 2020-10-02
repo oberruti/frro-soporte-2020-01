@@ -3,8 +3,10 @@ import { StyleMap, Style } from 'utils/tsTypes'
 import { Cookies } from 'react-cookie/lib'
 import { Layout } from 'components/app/layout'
 import { SubjectModel } from './model'
-import { SubjectsType } from './common'
+import { SubjectsType, SubjectType } from './common'
 import { HorizontalStack, VerticalStack } from '../../common/components/flex'
+import { getValueOrDefault, isNil } from '../../utils/checks'
+import { noop } from '@babel/types'
 import edit from 'common/img/edit-logo.png'
 import trash from 'common/img/trash-logo.png'
 
@@ -57,6 +59,84 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
         [setSubjects, subjects]
     )
 
+    const changeSubject = useCallback(
+        async (
+            id: string,
+            name: string,
+            division: string,
+            condition: string,
+            theoryDDHHHH: string,
+            practiceDDHHHH: string,
+            score: string,
+            theoryProfessor: string,
+            practiceProfessor: string,
+            cleanScreen: () => void) => {
+            const saved = await subjectModel.tryToModifySubject(
+                id,
+                name,
+                division,
+                condition,
+                theoryDDHHHH,
+                practiceDDHHHH,
+                score,
+                theoryProfessor,
+                practiceProfessor,
+                )
+            if (saved) {
+                const newSubject = subjects.map((subjectArray) => {
+                    if (subjectArray.id === id) {
+                        const subject: SubjectType  = subjectModel.getSubjectById(setErrorMessage, id)
+                        subjectArray = subject
+                    }
+                    return subjectArray
+                })
+                setSubjects(newSubject)
+                void loadSubjects()
+                cleanScreen()
+                return true
+            }
+            return false
+        },
+        [setSubjects, subjects]
+    )
+
+    const tryToChangeSubjectWithEffect = async (
+        id: string,
+        name: string,
+        division: string,
+        condition: string,
+        theoryDDHHHH: string,
+        practiceDDHHHH: string,
+        score: string,
+        theoryProfessor: string,
+        practiceProfessor: string,
+        cleanScreen: () => void) : Promise<boolean> => {
+        return await changeSubject(
+            id,
+            name,
+            division,
+            condition,
+            theoryDDHHHH,
+            practiceDDHHHH,
+            score,
+            theoryProfessor,
+            practiceProfessor,
+            cleanScreen)
+    }
+
+    const deleteSubject = useCallback(async (id: string) => {
+        const deleted = await subjectModel.tryToDeleteSubject(id)
+        if (deleted) {
+            void loadSubjects()
+            return true
+        }
+        return false
+    }, [])
+
+    const tryToDeleteSubjectWithEffect = async (id: string): Promise<boolean> => {
+        return await deleteSubject(id)
+    }
+
     /*
      * Load the information
      */
@@ -82,6 +162,8 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
                     accessToken={accessToken}
                     subjects={subjects}
                     tryToSaveSubject={saveSubject}
+                    tryToChangeSubjectWithEffect={tryToChangeSubjectWithEffect}
+                    tryToDeleteSubjectWithEffect={tryToDeleteSubjectWithEffect}
                 />
             </section>
         </Layout>
@@ -103,6 +185,18 @@ const SubjectList = (props: {
         setErrorMessage: (value: string) => void,
         cleanScreen: () => void
     ) => void
+    tryToChangeSubjectWithEffect: (
+        id: string,
+        name: string,
+        division: string,
+        condition: string,
+        theoryDDHHHH: string,
+        practiceDDHHHH: string,
+        score: string,
+        theoryProfessor: string,
+        practiceProfessor: string,
+        cleanScreen: () => void)  => void
+    tryToDeleteSubjectWithEffect: (id: string) => void
 }): JSX.Element => {
     const styles: StyleMap = {
         box: {
@@ -175,13 +269,47 @@ const SubjectList = (props: {
         }
     }
 
-    const [styleNewSubject, setStyleNewSubject] = useState(styles.noInput)
-
     const [isAddSubjectClicked, setIsAddSubjectClicked] = useState(false)
+    const [isEditSubjectClicked, setIsEditSubjectClicked] = useState(false)
+    const [currentSubject, setCurrentSubject] = useState({
+        id: '',
+        name: '',
+        division: '',
+        condition: '',
+        theoryDDHHHH: '',
+        practiceDDHHHH: '',
+        score: '',
+        theoryProfessor: '',
+        practiceProfessor: '',
+    })
+
 
     const onClick = useCallback(() => {
         setIsAddSubjectClicked(true)
     }, [setIsAddSubjectClicked])
+
+
+    const onClickEdit = useCallback(
+        (subject) => {
+            setIsEditSubjectClicked(true)
+            setCurrentSubject({
+                id: subject.id,
+                name: subject.name,
+                division: subject.divison,
+                condition: subject.condition,
+                theoryDDHHHH: subject.theoryDDHHHH,
+                practiceDDHHHH: subject.practiceDDHHHH,
+                score: subject.score,
+                theoryProfessor: subject.theoryProfessor,
+                practiceProfessor: subject.practiceProfessor,
+            })
+        },
+        [setIsEditSubjectClicked]
+    )
+
+    const onClickDelete = useCallback((id) => {
+        props.tryToDeleteSubjectWithEffect(id)
+    }, [])
 
     const subjectsSelected = props.subjects
 
@@ -196,8 +324,8 @@ const SubjectList = (props: {
                 <th>{subject.division}</th>
                 <th>{subject.condition}</th>
                 <th>{subject.score}</th>
-                <th><img src={edit} style={styles.logo} />  </th>
-                <th><img src={trash} style={styles.logo} />  </th>
+                <th><img src={edit} onClick={()=>onClickEdit(subject)} style={styles.logo} />  </th>
+                <th><img src={trash} onClick={()=>onClickDelete(subject.id)} style={styles.logo} />  </th>
             </tr>
         )
     })
@@ -227,15 +355,32 @@ const SubjectList = (props: {
             </button>
             <MaybeSubjectForm
                 isAddSubjectClicked={isAddSubjectClicked}
-                onCancel={() => setIsAddSubjectClicked(false)}
+                isEditSubjectClicked={isEditSubjectClicked}
+                onCancel={() => {
+                                setIsAddSubjectClicked(false)
+                                setIsEditSubjectClicked(false)}}
+                currentSubject={currentSubject}
                 tryToSaveSubject={props.tryToSaveSubject}
+                tryToChangeSubjectWithEffect={props.tryToChangeSubjectWithEffect}
             />
         </div>
     )
 }
 interface MaybeSubjectFormProps {
     isAddSubjectClicked: boolean
+    isEditSubjectClicked: boolean
     onCancel: () => void
+    currentSubject: {
+        id: string,
+        name: string,
+        division: string,
+        condition: string,
+        theoryDDHHHH: string,
+        practiceDDHHHH: string,
+        score: string,
+        theoryProfessor: string,
+        practiceProfessor: string,
+    }
     tryToSaveSubject: (
         name: string,
         division: string,
@@ -248,6 +393,17 @@ interface MaybeSubjectFormProps {
         setErrorMessage: (value: string) => void,
         cleanScreen: () => void
     ) => void
+    tryToChangeSubjectWithEffect: (
+        id: string,
+        name: string,
+        division: string,
+        condition: string,
+        theoryDDHHHH: string,
+        practiceDDHHHH: string,
+        score: string,
+        theoryProfessor: string,
+        practiceProfessor: string,
+        cleanScreen: () => void)  => void
 }
 const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
     const [errorMessage, setErrorMessage] = useState('')
@@ -259,6 +415,31 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
     const [practiceDDHHHH, setPracticeDDHHHH] = useState('')
     const [practiceProfessor, setPracticeProfessor] = useState('')
     const [theoryProfessor, setTheoryProfessor] = useState('')
+
+    useEffect(() => {
+        if (props.isEditSubjectClicked) {
+            setName(props.currentSubject.name)
+            setDivision(props.currentSubject.division)
+            setCondition(props.currentSubject.condition)
+            setScore(props.currentSubject.score)
+            setTheoryDDHHHH(props.currentSubject.theoryDDHHHH)
+            setPracticeDDHHHH(props.currentSubject.practiceDDHHHH)
+            setPracticeProfessor(props.currentSubject.practiceProfessor)
+            setTheoryProfessor(props.currentSubject.theoryProfessor)
+        }
+    }, [
+        props.isEditSubjectClicked,
+        setName,
+        setDivision,
+        setCondition,
+        setScore,
+        setTheoryDDHHHH,
+        setPracticeDDHHHH,
+        setPracticeProfessor,
+        setTheoryProfessor,
+        props.currentSubject,
+    ])
+
 
     const onCancel = (): void => {
         setErrorMessage('')
@@ -292,8 +473,34 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
         )
         return
     }
+    
 
-    if (!props.isAddSubjectClicked) {
+    const onConfirmEdit = (): void => {
+        if (name === '') {
+            setErrorMessage('Nombre de materia vacio')
+            return
+        }
+        props.tryToChangeSubjectWithEffect(
+                props.currentSubject.id,
+                name,
+                division,
+                condition,
+                theoryDDHHHH,
+                practiceDDHHHH,
+                theoryProfessor ,
+                practiceProfessor,
+                errorMessage,  
+                onCancel)
+        onCancel()
+        return
+    }
+
+    const onConfirmSelected = props.isEditSubjectClicked
+    ? onConfirmEdit
+    : onConfirm
+const title = props.isEditSubjectClicked ? 'Editar Materia' : 'Agregar Materia'
+
+    if (!props.isAddSubjectClicked && !props.isEditSubjectClicked) {
         return null
     }
     const styles: StyleMap = {
@@ -344,6 +551,7 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
 
     return (
         <VerticalStack style={{ marginTop: '50px' }}>
+            <h1 style={styles.title}>{title}</h1>
             <input
                 style={styles.input}
                 placeholder="Nombre Materia*"
@@ -418,7 +626,7 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
             />
             {errorMessage}
             <HorizontalStack>
-                <button style={styles.confirm} onClick={onConfirm}>
+                <button style={styles.confirm} onClick={onConfirmSelected}>
                     Confirmar
                 </button>
                 <button style={styles.cancel} onClick={onCancel}>

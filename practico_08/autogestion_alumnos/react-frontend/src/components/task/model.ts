@@ -151,7 +151,42 @@ export class TaskModel {
             })
         return await response
     }
+
+    tryToDeleteTask = async (id: string): Promise<boolean> => {
+        const response = await this.deleteTask(id)
+
+        return response.status === 'ok'
+    }
+
+    deleteTask = async (id: string): Promise<{ msg: any; status: string }> => {
+        const response = axios({
+            method: 'delete',
+            url: '/task',
+            data: {
+                id: id,
+            },
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${this.accessToken}`,
+            },
+        })
+            .then((response) => {
+                return {
+                    status: response.data.status,
+                    msg: response.data,
+                }
+            })
+            .catch(() => {
+                return {
+                    status: 'error',
+                    msg: '',
+                }
+            })
+        return await response
+    }
+
 }
+
 
 export const processTasks = (tasks: any): TasksType => {
     if (Array.isArray(tasks)) {

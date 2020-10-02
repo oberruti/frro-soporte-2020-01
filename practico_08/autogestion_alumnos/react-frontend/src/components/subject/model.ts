@@ -208,4 +208,109 @@ export class SubjectModel {
             })
         return await response
     }
+
+    tryToModifySubject = async (
+        id: string,
+        name: string,
+        division: string,
+        condition: string,
+        theoryDDHHHH: string,
+        practiceDDHHHH: string,
+        score: string,
+        theoryProfessor: string,
+        practiceProfessor: string,
+    ): Promise<boolean> => {
+        const response = await this.changeSubject(           id,
+            name,
+            division,
+            condition,
+            theoryDDHHHH,
+            practiceDDHHHH,
+            score,
+            theoryProfessor,
+            practiceProfessor,
+            )
+        return response.status === 'ok'
+    }
+
+    changeSubject = async (
+        id: string,
+        name: string,
+        division: string,
+        condition: string,
+        theoryDDHHHH: string,
+        practiceDDHHHH: string,
+        score: string,
+        theoryProfessor: string,
+        practiceProfessor: string
+    ): Promise<{ msg: any; status: string }> => {
+        const response = axios
+            .put(
+                '/subject',
+                {
+                    id: id,
+                    name: name,
+                    division: division,
+                    condition: condition,
+                    theoryddhhhh: theoryDDHHHH,
+                    practiceddhhhh: practiceDDHHHH,
+                    score: score,
+                    theory_professor: theoryProfessor,
+                    practice_professor: practiceProfessor,
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${this.accessToken}`,
+                    },
+                }
+            )
+            .then((response) => {
+                return {
+                    status: response.data.status,
+                    msg: response.data,
+                }
+            })
+            .catch(() => {
+                return {
+                    status: 'error',
+                    msg: '',
+                }
+            })
+        return await response
+    }
+
+    tryToDeleteSubject = async (id: string): Promise<boolean> => {
+        const response = await this.deleteSubject(id)
+
+        return response.status === 'ok'
+    }
+
+    deleteSubject = async (id: string): Promise<{ msg: any; status: string }> => {
+        const response = axios({
+            method: 'delete',
+            url: '/subject',
+            data: {
+                id: id,
+            },
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${this.accessToken}`,
+            },
+        })
+            .then((response) => {
+                return {
+                    status: response.data.status,
+                    msg: response.data,
+                }
+            })
+            .catch(() => {
+                return {
+                    status: 'error',
+                    msg: '',
+                }
+            })
+        return await response
+    }
+
 }
