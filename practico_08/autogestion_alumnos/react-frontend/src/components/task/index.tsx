@@ -9,7 +9,7 @@ import { TasksType, TaskType } from './common'
 import { SubjectModel } from '../subject/model'
 import { SubjectsType, SubjectType } from '../subject/common'
 import { HorizontalStack, VerticalStack } from '../../common/components/flex'
-import { getValueOrDefault } from '../../utils/checks'
+import { getValueOrDefault, isNil } from '../../utils/checks'
 import { noop } from '@babel/types'
 import { formatDate } from 'utils/utils'
 import edit from 'common/img/edit-logo.png'
@@ -89,6 +89,7 @@ export const Task = (props: { cookies: Cookies }): JSX.Element => {
                     return taskArray
                 })
                 setTasks(newTasks)
+                loadTasks()
                 return true
             }
             return false
@@ -100,6 +101,18 @@ export const Task = (props: { cookies: Cookies }): JSX.Element => {
         task: TaskType
     ): Promise<boolean> => {
         return await changeTask(task)
+    }
+    const deleteTask = useCallback(async (id: string) => {
+        const deleted = await model.tryToDeleteTask(id)
+        if (deleted) {
+            void loadTasks()
+            return true
+        }
+        return false
+    }, [])
+
+    const tryToDeleteTaskWithEffect = async (id: string): Promise<boolean> => {
+        return await deleteTask(id)
     }
 
     /*
@@ -182,6 +195,7 @@ export const Task = (props: { cookies: Cookies }): JSX.Element => {
                     valueSelected={valueSelected}
                     tryToSaveTaskWithEffect={tryToSaveTaskWithEffect}
                     tryToChangeTaskWithEffect={tryToChangeTaskWithEffect}
+                    tryToDeleteTaskWithEffect={tryToDeleteTaskWithEffect}
                 />
             </VerticalStack>
         </Layout>
@@ -203,6 +217,7 @@ const MaybeTaskList = (props: {
         cleanScreen: () => void
     ) => void
     tryToChangeTaskWithEffect: (task: TaskType) => Promise<boolean>
+    tryToDeleteTaskWithEffect: (id: string) => Promise<boolean>
 }): JSX.Element | null => {
     if (props.isOptionSelected) {
         return (
@@ -212,6 +227,7 @@ const MaybeTaskList = (props: {
                 valueSelected={props.valueSelected}
                 tryToSaveTaskWithEffect={props.tryToSaveTaskWithEffect}
                 tryToChangeTaskWithEffect={props.tryToChangeTaskWithEffect}
+                tryToDeleteTaskWithEffect={props.tryToDeleteTaskWithEffect}
             />
         )
     }
@@ -232,6 +248,7 @@ const TaskList = (props: {
         cleanScreen: () => void
     ) => void
     tryToChangeTaskWithEffect: (task: TaskType) => Promise<boolean>
+    tryToDeleteTaskWithEffect: (id: string) => void
 }): JSX.Element => {
     const styles: StyleMap = {
         box: {
@@ -305,10 +322,37 @@ const TaskList = (props: {
         },
     }
     const [isAddTaskClicked, setIsAddTaskClicked] = useState(false)
+    const [isEditTaskClicked, setIsEditTaskClicked] = useState(false)
+    const [currentTask, setCurrentTask] = useState({
+        id: '',
+        description: '',
+        date: new Date(),
+        score: '',
+        subjectId: '',
+    })
 
     const onClick = useCallback(() => {
         setIsAddTaskClicked(true)
     }, [setIsAddTaskClicked])
+
+    const onClickEdit = useCallback(
+        (task) => {
+            setIsEditTaskClicked(true)
+            setCurrentTask({
+                id: task.id,
+                description: task.description,
+                date: task.date,
+                score: task.score,
+                subjectId: task.subjectId,
+            })
+        },
+        [setIsEditTaskClicked]
+    )
+
+    const onClickDelete = useCallback((id) => {
+        props.tryToDeleteTaskWithEffect(id)
+    }, [])
+
 
     const onCheck = (task: TaskType): Promise<boolean> =>
         props.tryToChangeTaskWithEffect(task)
@@ -344,10 +388,21 @@ const TaskList = (props: {
                 <th style={styles.cells}>{formatDate(task.date)}</th>
                 <th style={styles.cells}>{task.score}</th>
                 <th style={styles.cells}>
-                    <img src={edit} style={styles.logo} />{' '}
+
+                    <img
+                        onClick={() => {
+                            onClickEdit(task)
+                        }}
+                        src={edit}
+                        style={styles.logo}
+                    />{' '}
                 </th>
                 <th style={styles.cells}>
-                    <img src={trash} style={styles.logo} />{' '}
+                    <img
+                        onClick={() => onClickDelete(task.id)}
+                        src={trash}
+                        style={styles.logo}
+                    />{' '}
                 </th>
             </tr>
         )
@@ -374,9 +429,14 @@ const TaskList = (props: {
             </button>
             <MaybeTaskForm
                 isAddTaskClicked={isAddTaskClicked}
-                onCancel={() => setIsAddTaskClicked(false)}
+                isEditTaskClicked={isEditTaskClicked}
+                currentTask={currentTask}
+                onCancel={() => {
+                    setIsAddTaskClicked(false)
+                    setIsEditTaskClicked(false)}}
                 valueSelected={props.valueSelected}
                 tryToSaveTaskWithEffect={props.tryToSaveTaskWithEffect}
+                tryToChangeTaskWithEffect={props.tryToChangeTaskWithEffect}
             />
         </div>
     )
@@ -385,6 +445,14 @@ const TaskList = (props: {
 interface MaybeTaskFormProps {
     valueSelected: string
     isAddTaskClicked: boolean
+    isEditTaskClicked: boolean
+    currentTask: {
+        id: string
+        description: string
+        date: Date
+        score: string
+        subjectId: string
+    }
     onCancel: () => void
     tryToSaveTaskWithEffect: (
         description: string,
@@ -393,8 +461,9 @@ interface MaybeTaskFormProps {
         score: string,
         setErrorMessage: (value: string) => void,
         valueSelected: string,
-        cleanScreen: () => void
+        cleanScreen: () => void,
     ) => void
+    tryToChangeTaskWithEffect: (task: TaskType, cleanScreen: () => void) => void
 }
 
 const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
@@ -403,6 +472,25 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
     const [isDone, setIsDone] = useState(false)
     const [date, setDate] = useState()
     const [score, setScore] = useState('')
+
+
+    useEffect(() => {
+        if (props.isEditTaskClicked) {
+            setDescription(props.currentTask.description)
+            setDate(
+                isNil(props.currentTask.date)
+                    ? null
+                    : new Date(props.currentTask.date)
+            )
+            setScore(props.currentTask.score)
+        }
+    }, [
+        props.isEditTaskClicked,
+        setDescription,
+        setDate,
+        setScore,
+        props.currentTask,
+    ])
 
     const onCancel = (): void => {
         setErrorMessage('')
@@ -430,9 +518,36 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
         return
     }
 
-    if (!props.isAddTaskClicked) {
+    const onConfirmEdit = (): void => {
+        if (description === '') {
+            setErrorMessage('Titulo de examen vacio')
+            return
+        }
+        props.tryToChangeTaskWithEffect(
+            {
+                id: props.currentTask.id,
+                description: description,
+                score: score,
+                isDone: isDone,
+                date: isNil(date) ? null : date.toDateString(),
+                subjectId: props.currentTask.subjectId,
+            },
+            onCancel
+        )
+        onCancel()
+    }
+
+
+    if (!props.isAddTaskClicked && !props.isEditTaskClicked) {
         return null
     }
+
+    const onConfirmSelected = props.isEditTaskClicked
+        ? onConfirmEdit
+        : onConfirm
+    const title = props.isEditTaskClicked ? 'Editar tarea' : 'Agregar tarea'
+
+
     const styles: StyleMap = {
         input: {
             height: '25px',
@@ -536,7 +651,7 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
             />
             <label style={styles.title}>{errorMessage}</label>
             <HorizontalStack>
-                <button style={styles.confirm} onClick={onConfirm}>
+                <button style={styles.confirm} onClick={onConfirmSelected}>
                     Confirmar
                 </button>
                 <button style={styles.cancel} onClick={onCancel}>
