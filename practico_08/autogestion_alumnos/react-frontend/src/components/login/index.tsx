@@ -4,6 +4,7 @@ import { VerticalStack } from 'common/components/flex'
 import { LoginModel } from 'components/login/model'
 import { Cookies } from 'react-cookie/lib'
 import { Link, useHistory} from 'react-router-dom'
+import userIcon from 'common/img/user-logo.png'
 
 export const Login = (props: { cookies: Cookies }): JSX.Element => {
     const model = new LoginModel(props.cookies)
@@ -45,7 +46,7 @@ export const Login = (props: { cookies: Cookies }): JSX.Element => {
     return (
         <div style={styles.background}>
             <div style={styles.whiteBox}>
-                <div style={styles.userIcon} />
+                <img style={styles.userIcon} src={userIcon}/>
                 <LoginForm model={model} />
                 <BottomOptions />
             </div>
@@ -147,15 +148,7 @@ const LoginForm = (props: { model: LoginModel }): JSX.Element => {
 const BottomOptions = (): JSX.Element => {
     const styles: StyleMap = {
         signUp: {
-            marginTop: '35px',
-            fontStyle: 'normal',
-            fontWeight: 'normal',
-            fontSize: '18px',
-            color: 'black',
-            textDecoration: 'none',
-        },
-        lostYourPassword: {
-            marginTop: '15px',
+            marginTop: '25px',
             fontStyle: 'normal',
             fontWeight: 'normal',
             fontSize: '20px',
@@ -170,10 +163,8 @@ const BottomOptions = (): JSX.Element => {
     return (
         <VerticalStack style={styles.bottomLinks}>
             <Link style={styles.signUp} to={'/acc/signup'}>
-                Sign Up
-            </Link>
-            <Link style={styles.lostYourPassword} to={'/'}>
-                Lost your password?
+                <p>Don't have an account yet?</p>
+                <p>Sign Up</p>
             </Link>
         </VerticalStack>
     )
