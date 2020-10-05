@@ -218,9 +218,10 @@ export class SubjectModel {
         practiceDDHHHH: string,
         score: string,
         theoryProfessor: string,
-        practiceProfessor: string,
+        practiceProfessor: string
     ): Promise<boolean> => {
-        const response = await this.changeSubject(           id,
+        const response = await this.changeSubject(
+            id,
             name,
             division,
             condition,
@@ -228,8 +229,8 @@ export class SubjectModel {
             practiceDDHHHH,
             score,
             theoryProfessor,
-            practiceProfessor,
-            )
+            practiceProfessor
+        )
         return response.status === 'ok'
     }
 
@@ -286,7 +287,9 @@ export class SubjectModel {
         return response.status === 'ok'
     }
 
-    deleteSubject = async (id: string): Promise<{ msg: any; status: string }> => {
+    deleteSubject = async (
+        id: string
+    ): Promise<{ msg: any; status: string }> => {
         const response = axios({
             method: 'delete',
             url: '/subject',
@@ -312,5 +315,4 @@ export class SubjectModel {
             })
         return await response
     }
-
 }

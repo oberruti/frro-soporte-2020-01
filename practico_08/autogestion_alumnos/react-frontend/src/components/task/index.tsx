@@ -82,24 +82,19 @@ export const Task = (props: { cookies: Cookies }): JSX.Element => {
         async (task: TaskType) => {
             const saved = await model.tryToModifyTask(task)
             if (saved) {
-                const newTasks = tasks.map((taskArray) => {
-                    if (taskArray.id === task.id) {
-                        taskArray.isDone = task.isDone
-                    }
-                    return taskArray
-                })
-                setTasks(newTasks)
-                loadTasks()
+                void loadTasks()
                 return true
             }
+            setErrorMessage('Algo salio mal, intentalo otra vez.')
             return false
         },
-        [setTasks, tasks]
+        [loadTasks]
     )
 
     const tryToChangeTaskWithEffect = async (
         task: TaskType
     ): Promise<boolean> => {
+        setErrorMessage('')
         return await changeTask(task)
     }
     const deleteTask = useCallback(async (id: string) => {
@@ -108,10 +103,12 @@ export const Task = (props: { cookies: Cookies }): JSX.Element => {
             void loadTasks()
             return true
         }
+        setErrorMessage('Algo salio mal, intentalo otra vez.')
         return false
     }, [])
 
     const tryToDeleteTaskWithEffect = async (id: string): Promise<boolean> => {
+        setErrorMessage('')
         return await deleteTask(id)
     }
 
@@ -327,6 +324,7 @@ const TaskList = (props: {
         id: '',
         description: '',
         date: new Date(),
+        isDone: false,
         score: '',
         subjectId: '',
     })
@@ -342,6 +340,7 @@ const TaskList = (props: {
                 id: task.id,
                 description: task.description,
                 date: task.date,
+                isDone: task.isDone,
                 score: task.score,
                 subjectId: task.subjectId,
             })
@@ -352,7 +351,6 @@ const TaskList = (props: {
     const onClickDelete = useCallback((id) => {
         props.tryToDeleteTaskWithEffect(id)
     }, [])
-
 
     const onCheck = (task: TaskType): Promise<boolean> =>
         props.tryToChangeTaskWithEffect(task)
@@ -388,7 +386,6 @@ const TaskList = (props: {
                 <th style={styles.cells}>{formatDate(task.date)}</th>
                 <th style={styles.cells}>{task.score}</th>
                 <th style={styles.cells}>
-
                     <img
                         onClick={() => {
                             onClickEdit(task)
@@ -433,7 +430,8 @@ const TaskList = (props: {
                 currentTask={currentTask}
                 onCancel={() => {
                     setIsAddTaskClicked(false)
-                    setIsEditTaskClicked(false)}}
+                    setIsEditTaskClicked(false)
+                }}
                 valueSelected={props.valueSelected}
                 tryToSaveTaskWithEffect={props.tryToSaveTaskWithEffect}
                 tryToChangeTaskWithEffect={props.tryToChangeTaskWithEffect}
@@ -451,6 +449,7 @@ interface MaybeTaskFormProps {
         description: string
         date: Date
         score: string
+        isDone: boolean
         subjectId: string
     }
     onCancel: () => void
@@ -461,7 +460,7 @@ interface MaybeTaskFormProps {
         score: string,
         setErrorMessage: (value: string) => void,
         valueSelected: string,
-        cleanScreen: () => void,
+        cleanScreen: () => void
     ) => void
     tryToChangeTaskWithEffect: (task: TaskType, cleanScreen: () => void) => void
 }
@@ -473,10 +472,10 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
     const [date, setDate] = useState()
     const [score, setScore] = useState('')
 
-
     useEffect(() => {
         if (props.isEditTaskClicked) {
             setDescription(props.currentTask.description)
+            setIsDone(props.currentTask.isDone)
             setDate(
                 isNil(props.currentTask.date)
                     ? null
@@ -520,7 +519,7 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
 
     const onConfirmEdit = (): void => {
         if (description === '') {
-            setErrorMessage('Titulo de examen vacio')
+            setErrorMessage('Titulo de tarea vacio')
             return
         }
         props.tryToChangeTaskWithEffect(
@@ -537,7 +536,6 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
         onCancel()
     }
 
-
     if (!props.isAddTaskClicked && !props.isEditTaskClicked) {
         return null
     }
@@ -546,7 +544,6 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
         ? onConfirmEdit
         : onConfirm
     const title = props.isEditTaskClicked ? 'Editar tarea' : 'Agregar tarea'
-
 
     const styles: StyleMap = {
         input: {
@@ -607,6 +604,7 @@ const MaybeTaskForm = (props: MaybeTaskFormProps): JSX.Element | null => {
 
     return (
         <VerticalStack style={{ marginTop: '50px' }}>
+            <h1 style={styles.title}>{title}</h1>
             <input
                 style={styles.input}
                 placeholder="Titulo tarea*"
