@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from 'react'
 import { StyleMap } from 'utils/tsTypes'
 import { VerticalStack } from 'common/components/flex'
-
 import { SignUpModel } from './model'
 import {Link, Redirect, Switch, useHistory} from 'react-router-dom'
+import userIcon from 'common/img/user-logo.png'
 
 export const SignUp = (): JSX.Element => {
     const model = new SignUpModel()
@@ -45,7 +45,7 @@ export const SignUp = (): JSX.Element => {
     return (
         <div style={styles.background}>
             <div style={styles.whiteBox}>
-                <div style={styles.userIcon} />
+                <img style={styles.userIcon} src={userIcon}/>
                 <SignUpForm model={model} />
                 <BottomOptions />
             </div>
