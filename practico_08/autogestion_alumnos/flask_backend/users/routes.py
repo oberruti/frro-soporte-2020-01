@@ -275,7 +275,14 @@ def get_tasksbysubject():
 def get_tasks():
     if request.method == "GET":
         tasks = Task.query.all()
-        return dict(status="ok", data=dict(tasks=Task.serialize_list(elements=tasks)))
+        current_user = get_jwt_identity()
+        user_id = User.query.filter_by(name=current_user).first().id
+        final_tasks = []
+        for task in tasks:
+            subject = Subject.query.filter_by(id=task.subject_id).first()
+            if subject.user_id == user_id:
+                final_tasks.append(task)
+        return dict(status="ok", data=dict(tasks=Task.serialize_list(elements=final_tasks)))
     return dict(status="error", msg="Request not allowed")
 
 
@@ -358,5 +365,12 @@ def get_examsbysubject():
 def get_exams():
     if request.method == "GET":
         exams = Exam.query.all()
-        return dict(status="ok", data=dict(exams=Exam.serialize_list(elements=exams)))
+        current_user = get_jwt_identity()
+        user_id = User.query.filter_by(name=current_user).first().id
+        final_exams = []
+        for exam in exams:
+            subject = Subject.query.filter_by(id=exam.subject_id).first()
+            if subject.user_id == user_id:
+                final_exams.append(exam)
+        return dict(status="ok", data=dict(exams=Exam.serialize_list(elements=final_exams)))
     return dict(status="error", msg="Request not allowed")
