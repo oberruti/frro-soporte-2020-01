@@ -61,7 +61,7 @@ export function TaskMenu(): JSX.Element {
         marginTop: '10px',
     }
     return (
-        <Tooltip title="Task" placement="right">
+        <Tooltip title="Tareas" placement="right">
             <Link to={'/app/task/'} style={logo}>
                 <img src={task} style={logo} />
             </Link>
@@ -81,7 +81,7 @@ export function SubjectMenu(): JSX.Element {
         marginTop: '10px',
     }
     return (
-        <Tooltip title="Subject" placement="right">
+        <Tooltip title="Materias" placement="right">
             <Link to={'/app/subject/'} style={logo}>
                 <img src={subject} style={logo} />
             </Link>
@@ -101,7 +101,7 @@ export function TestMenu(): JSX.Element {
         marginTop: '10px',
     }
     return (
-        <Tooltip title="Exam" placement="right">
+        <Tooltip title="Examenes" placement="right">
             <Link to={'/app/test/'} style={logo}>
                 <img src={test} style={logo} />
             </Link>
@@ -121,7 +121,7 @@ export function CalendarMenu(): JSX.Element {
         marginTop: '10px',
     }
     return (
-        <Tooltip title="Calendar" placement="right">
+        <Tooltip title="Calendario" placement="right">
             <Link to={'/app/calendar/'} style={logo}>
                 <img src={calendar} style={logo} />
             </Link>

@@ -78,17 +78,11 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
         async (test: TestType, cleanScreen: () => void) => {
             const saved = await model.tryToModifyTest(test)
             if (saved) {
-                const newTests = tests.map((testArray) => {
-                    if (testArray.id === test.id) {
-                        testArray = test
-                    }
-                    return testArray
-                })
-                setTests(newTests)
                 void loadTests()
                 cleanScreen()
                 return true
             }
+            setErrorMessage('Algo salio mal, intentalo otra vez.')
             return false
         },
         [setTests, tests]
@@ -98,6 +92,7 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
         test: TestType,
         cleanScreen: () => void
     ): Promise<boolean> => {
+        setErrorMessage('')
         return await changeTest(test, cleanScreen)
     }
 
@@ -107,10 +102,12 @@ export const Test = (props: { cookies: Cookies }): JSX.Element => {
             void loadTests()
             return true
         }
+        setErrorMessage('Algo salio mal, intentalo otra vez.')
         return false
     }, [])
 
     const tryToDeleteTestWithEffect = async (id: string): Promise<boolean> => {
+        setErrorMessage('')
         return await deleteTest(id)
     }
 

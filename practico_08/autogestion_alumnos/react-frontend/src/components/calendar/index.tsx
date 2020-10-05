@@ -64,7 +64,7 @@ export const CalendarPage = (props: { cookies: Cookies }): JSX.Element => {
     return (
         <Layout cookies={props.cookies}>
             <VerticalStack style={styles.general}>
-                <label style={styles.title}>Calendar</label>
+                <label style={styles.title}>Calendario</label>
                 <label style={styles.error}>{errorMessage}</label>
                 <Calendar
                     localizer={localizer}

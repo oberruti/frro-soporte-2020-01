@@ -1,12 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, {useState, useCallback, useEffect, SetStateAction} from 'react'
 import { StyleMap, Style } from 'utils/tsTypes'
 import { Cookies } from 'react-cookie/lib'
 import { Layout } from 'components/app/layout'
 import { SubjectModel } from './model'
-import { SubjectsType, SubjectType } from './common'
+import { SubjectsType } from './common'
 import { HorizontalStack, VerticalStack } from '../../common/components/flex'
-import { getValueOrDefault, isNil } from '../../utils/checks'
-import { noop } from '@babel/types'
+import { isNil } from '../../utils/checks'
 import edit from 'common/img/edit-logo.png'
 import trash from 'common/img/trash-logo.png'
 
@@ -39,6 +38,7 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
             setErrorMessage: (value: string) => void,
             cleanScreen: () => void
         ) => {
+            setErrorMessage('')
             const savedSubject: SubjectsType = await subjectModel.tryToSaveSubject(
                 name,
                 division,
@@ -70,7 +70,8 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
             score: string,
             theoryProfessor: string,
             practiceProfessor: string,
-            cleanScreen: () => void) => {
+            cleanScreen: () => void
+        ) => {
             const saved = await subjectModel.tryToModifySubject(
                 id,
                 name,
@@ -80,24 +81,24 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
                 practiceDDHHHH,
                 score,
                 theoryProfessor,
-                practiceProfessor,
-                )
+                practiceProfessor
+            )
             if (saved) {
-                const newSubject = subjects.map((subjectArray) => {
-                    if (subjectArray.id === id) {
-                        const subject: SubjectType  = subjectModel.getSubjectById(setErrorMessage, id)
-                        subjectArray = subject
-                    }
-                    return subjectArray
-                })
-                setSubjects(newSubject)
+                const subject = await subjectModel.getSubjectById(
+                    setErrorMessage,
+                    id
+                )
+                if (isNil(subject)) {
+                    return false
+                }
                 void loadSubjects()
                 cleanScreen()
                 return true
             }
+            setErrorMessage('Algo salio mal, intentalo otra vez.')
             return false
         },
-        [setSubjects, subjects]
+        [setSubjects, subjects, setErrorMessage, errorMessage]
     )
 
     const tryToChangeSubjectWithEffect = async (
@@ -110,7 +111,8 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
         score: string,
         theoryProfessor: string,
         practiceProfessor: string,
-        cleanScreen: () => void) : Promise<boolean> => {
+        cleanScreen: () => void
+    ): Promise<boolean> => {
         return await changeSubject(
             id,
             name,
@@ -121,19 +123,29 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
             score,
             theoryProfessor,
             practiceProfessor,
-            cleanScreen)
+            cleanScreen
+        )
     }
 
-    const deleteSubject = useCallback(async (id: string) => {
-        const deleted = await subjectModel.tryToDeleteSubject(id)
-        if (deleted) {
-            void loadSubjects()
-            return true
-        }
-        return false
-    }, [])
+    const deleteSubject = useCallback(
+        async (id: string) => {
+            setErrorMessage('')
+            const deleted = await subjectModel.tryToDeleteSubject(id)
+            if (deleted) {
+                void loadSubjects()
+                return true
+            }
+            setErrorMessage(
+                'Algo salio mal, intentalo otra vez. Recuerda eliminar tareas y examenes antes de eliminar una materia.'
+            )
+            return false
+        },
+        [setErrorMessage, errorMessage]
+    )
 
-    const tryToDeleteSubjectWithEffect = async (id: string): Promise<boolean> => {
+    const tryToDeleteSubjectWithEffect = async (
+        id: string
+    ): Promise<boolean> => {
         return await deleteSubject(id)
     }
 
@@ -155,6 +167,14 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
         fontFamily: 'Arial',
     }
 
+    const error: Style = {
+        marginTop: '10px',
+        textAlign: 'center',
+        color: 'white',
+        fontSize: '13px',
+        fontFamily: 'Arial',
+    }
+
     return (
         <Layout cookies={props.cookies}>
             <section style={general}>
@@ -164,7 +184,9 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
                     tryToSaveSubject={saveSubject}
                     tryToChangeSubjectWithEffect={tryToChangeSubjectWithEffect}
                     tryToDeleteSubjectWithEffect={tryToDeleteSubjectWithEffect}
+                    setErrorMessage={setErrorMessage}
                 />
+                <label style={error}>{errorMessage}</label>
             </section>
         </Layout>
     )
@@ -172,6 +194,7 @@ export const Subject = (props: { cookies: Cookies }): JSX.Element => {
 
 const SubjectList = (props: {
     subjects: SubjectsType
+    setErrorMessage: React.Dispatch<SetStateAction<string>>
     accessToken: string
     tryToSaveSubject: (
         name: string,
@@ -195,7 +218,8 @@ const SubjectList = (props: {
         score: string,
         theoryProfessor: string,
         practiceProfessor: string,
-        cleanScreen: () => void)  => void
+        cleanScreen: () => void
+    ) => void
     tryToDeleteSubjectWithEffect: (id: string) => void
 }): JSX.Element => {
     const styles: StyleMap = {
@@ -265,8 +289,8 @@ const SubjectList = (props: {
             maxWidth: '20px',
             maxHeight: '20px',
             cursor: 'pointer',
-            alignSelf: 'center'
-        }
+            alignSelf: 'center',
+        },
     }
 
     const [isAddSubjectClicked, setIsAddSubjectClicked] = useState(false)
@@ -283,19 +307,19 @@ const SubjectList = (props: {
         practiceProfessor: '',
     })
 
-
     const onClick = useCallback(() => {
+        props.setErrorMessage('')
         setIsAddSubjectClicked(true)
     }, [setIsAddSubjectClicked])
 
-
     const onClickEdit = useCallback(
         (subject) => {
+            props.setErrorMessage('')
             setIsEditSubjectClicked(true)
             setCurrentSubject({
                 id: subject.id,
                 name: subject.name,
-                division: subject.divison,
+                division: subject.division,
                 condition: subject.condition,
                 theoryDDHHHH: subject.theoryDDHHHH,
                 practiceDDHHHH: subject.practiceDDHHHH,
@@ -324,8 +348,20 @@ const SubjectList = (props: {
                 <th>{subject.division}</th>
                 <th>{subject.condition}</th>
                 <th>{subject.score}</th>
-                <th><img src={edit} onClick={()=>onClickEdit(subject)} style={styles.logo} />  </th>
-                <th><img src={trash} onClick={()=>onClickDelete(subject.id)} style={styles.logo} />  </th>
+                <th>
+                    <img
+                        src={edit}
+                        onClick={() => onClickEdit(subject)}
+                        style={styles.logo}
+                    />{' '}
+                </th>
+                <th>
+                    <img
+                        src={trash}
+                        onClick={() => onClickDelete(subject.id)}
+                        style={styles.logo}
+                    />{' '}
+                </th>
             </tr>
         )
     })
@@ -357,11 +393,14 @@ const SubjectList = (props: {
                 isAddSubjectClicked={isAddSubjectClicked}
                 isEditSubjectClicked={isEditSubjectClicked}
                 onCancel={() => {
-                                setIsAddSubjectClicked(false)
-                                setIsEditSubjectClicked(false)}}
+                    setIsAddSubjectClicked(false)
+                    setIsEditSubjectClicked(false)
+                }}
                 currentSubject={currentSubject}
                 tryToSaveSubject={props.tryToSaveSubject}
-                tryToChangeSubjectWithEffect={props.tryToChangeSubjectWithEffect}
+                tryToChangeSubjectWithEffect={
+                    props.tryToChangeSubjectWithEffect
+                }
             />
         </div>
     )
@@ -371,15 +410,15 @@ interface MaybeSubjectFormProps {
     isEditSubjectClicked: boolean
     onCancel: () => void
     currentSubject: {
-        id: string,
-        name: string,
-        division: string,
-        condition: string,
-        theoryDDHHHH: string,
-        practiceDDHHHH: string,
-        score: string,
-        theoryProfessor: string,
-        practiceProfessor: string,
+        id: string
+        name: string
+        division: string
+        condition: string
+        theoryDDHHHH: string
+        practiceDDHHHH: string
+        score: string
+        theoryProfessor: string
+        practiceProfessor: string
     }
     tryToSaveSubject: (
         name: string,
@@ -403,7 +442,8 @@ interface MaybeSubjectFormProps {
         score: string,
         theoryProfessor: string,
         practiceProfessor: string,
-        cleanScreen: () => void)  => void
+        cleanScreen: () => void
+    ) => void
 }
 const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
     const [errorMessage, setErrorMessage] = useState('')
@@ -440,7 +480,6 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
         props.currentSubject,
     ])
 
-
     const onCancel = (): void => {
         setErrorMessage('')
         setName('')
@@ -471,34 +510,34 @@ const MaybeSubjectForm = (props: MaybeSubjectFormProps): JSX.Element | null => {
             setErrorMessage,
             onCancel
         )
-        return
     }
-    
 
     const onConfirmEdit = (): void => {
-        if (name === '') {
-            setErrorMessage('Nombre de materia vacio')
+        if (name === '' || division === '' || condition === '') {
+            setErrorMessage('Completar los campos requeridos')
             return
         }
         props.tryToChangeSubjectWithEffect(
-                props.currentSubject.id,
-                name,
-                division,
-                condition,
-                theoryDDHHHH,
-                practiceDDHHHH,
-                theoryProfessor ,
-                practiceProfessor,
-                errorMessage,  
-                onCancel)
+            props.currentSubject.id,
+            name,
+            division,
+            condition,
+            theoryDDHHHH,
+            practiceDDHHHH,
+            score,
+            theoryProfessor,
+            practiceProfessor,
+            onCancel
+        )
         onCancel()
-        return
     }
 
     const onConfirmSelected = props.isEditSubjectClicked
-    ? onConfirmEdit
-    : onConfirm
-const title = props.isEditSubjectClicked ? 'Editar Materia' : 'Agregar Materia'
+        ? onConfirmEdit
+        : onConfirm
+    const title = props.isEditSubjectClicked
+        ? 'Editar Materia'
+        : 'Agregar Materia'
 
     if (!props.isAddSubjectClicked && !props.isEditSubjectClicked) {
         return null
@@ -546,6 +585,14 @@ const title = props.isEditSubjectClicked ? 'Editar Materia' : 'Agregar Materia'
             cursor: 'pointer',
             textAlign: 'center',
             width: '100%',
+        },
+        title: {
+            marginTop: '3%',
+            marginBottom: '3%',
+            textAlign: 'center',
+            color: 'white',
+            fontSize: '20px',
+            fontFamily: 'Arial',
         },
     }
 
