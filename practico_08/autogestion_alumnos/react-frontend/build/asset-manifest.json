@@ -1,0 +1,33 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d498bfb3.chunk.css",
+    "main.js": "/static/js/main.e546e74c.chunk.js",
+    "main.js.map": "/static/js/main.e546e74c.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.d43be887.js",
+    "runtime-main.js.map": "/static/js/runtime-main.d43be887.js.map",
+    "static/css/2.07114bf5.chunk.css": "/static/css/2.07114bf5.chunk.css",
+    "static/js/2.c7b51dee.chunk.js": "/static/js/2.c7b51dee.chunk.js",
+    "static/js/2.c7b51dee.chunk.js.map": "/static/js/2.c7b51dee.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.ce4a808ae07a7adc35fa398a1a194554.js": "/precache-manifest.ce4a808ae07a7adc35fa398a1a194554.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/2.07114bf5.chunk.css.map": "/static/css/2.07114bf5.chunk.css.map",
+    "static/css/main.d498bfb3.chunk.css.map": "/static/css/main.d498bfb3.chunk.css.map",
+    "static/js/2.c7b51dee.chunk.js.LICENSE.txt": "/static/js/2.c7b51dee.chunk.js.LICENSE.txt",
+    "static/media/calendar-logo.png": "/static/media/calendar-logo.b590e99c.png",
+    "static/media/edit-logo.png": "/static/media/edit-logo.4273dbc5.png",
+    "static/media/logout-logo.png": "/static/media/logout-logo.06446287.png",
+    "static/media/subject-logo.png": "/static/media/subject-logo.736ee04a.png",
+    "static/media/task-logo.png": "/static/media/task-logo.5b74cde8.png",
+    "static/media/test-logo.png": "/static/media/test-logo.4a992c7c.png",
+    "static/media/trash-logo.png": "/static/media/trash-logo.2ea58cae.png",
+    "static/media/user-logo.png": "/static/media/user-logo.29479ba0.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.d43be887.js",
+    "static/css/2.07114bf5.chunk.css",
+    "static/js/2.c7b51dee.chunk.js",
+    "static/css/main.d498bfb3.chunk.css",
+    "static/js/main.e546e74c.chunk.js"
+  ]
+}
