@@ -16,7 +16,7 @@
     "@types/react-router-dom": "^5.1.5",
     "@types/react-select": "^3.0.19",
     "axios": "^0.20.0",
-    "concurrently": "^4.1.0",
+    "concurrently": "^5.3.0",
     "eslint": "^6.6.0",
     "history": "^5.0.0",
     "lodash": "^4.17.20",
@@ -37,7 +37,7 @@
   "scripts": {
     "start-frontend": "react-scripts start",
     "start-flask-api": "cd .. && python3 run.py",
-    "start-dev": "concurrently \"npm run start-frontend\" \"npm run start-flask-api\"",
+    "start-dev": "concurrently \"yarn start-frontend\" \"yarn start-flask-api\"",
     "build": "react-scripts build",
     "eject": "react-scripts eject"
   },
