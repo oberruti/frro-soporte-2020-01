@@ -37,7 +37,7 @@
   "scripts": {
     "start-frontend": "react-scripts start",
     "start-flask-api": "cd .. && python3 run.py",
-    "start-dev": "react-scripts start",
+    "start-dev": "concurrently \"npm run start-frontend\" \"npm run start-flask-api\"",
     "build": "react-scripts build",
     "eject": "react-scripts eject"
   },
